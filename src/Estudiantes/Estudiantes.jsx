@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Estudiante from "./Estudiante";
+import CrearEstudiante from "./CrearEstudiante";
 
 const listaEstudiantes = [
   {
@@ -58,17 +59,12 @@ export default class Estudiantes extends Component {
     super(props);
     this.state = {
       estudiantes: null,
+      creacion: false,
     };
   }
 
   componentDidMount() {
-    fetch("http://localhost:1234/estudiantes")
-      .then((resp) => resp.json())
-      .then((json) => {
-        this.setState({
-          estudiantes: json.estudiantes,
-        });
-      });
+    this.consultarEstudiantes();
   }
 
   renderEstudiantes() {
@@ -77,6 +73,22 @@ export default class Estudiantes extends Component {
       return <Estudiante estudiante={estudiante} key={index} index={index} />;
     });
   }
+
+  handleClick = () => {
+    this.setState({
+      creacion: true,
+    });
+  };
+
+  consultarEstudiantes = () => {
+    fetch("http://localhost:1234/estudiantes")
+      .then((resp) => resp.json())
+      .then((json) => {
+        this.setState({
+          estudiantes: json.estudiantes,
+        });
+      });
+  };
 
   render() {
     const { estudiantes } = this.state;
@@ -97,6 +109,10 @@ export default class Estudiantes extends Component {
           </thead>
           <tbody>{estudiantes ? this.renderEstudiantes() : null}</tbody>
         </table>
+        <button onClick={this.handleClick}>Crear Estudiante</button>
+        {this.state.creacion ? (
+          <CrearEstudiante consultarEstudiantes={this.consultarEstudiantes} />
+        ) : null}
       </div>
     );
   }

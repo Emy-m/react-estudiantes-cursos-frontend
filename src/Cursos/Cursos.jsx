@@ -45,7 +45,6 @@ export default class Cursos extends Component {
         return response.json();
       })
       .then((cursos) => {
-        console.log(cursos);
         this.setState({
           cursos: cursos.cursos,
         });
