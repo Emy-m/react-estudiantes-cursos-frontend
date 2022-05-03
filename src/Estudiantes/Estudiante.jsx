@@ -3,7 +3,7 @@ import Cursos from "../Cursos/Cursos";
 
 export default class Estudiante extends Component {
   render() {
-    const { estudiante, index } = this.props;
+    const { estudiante, index, agregarCurso } = this.props;
     return (
       <tr>
         <td>{index}</td>
@@ -21,6 +21,7 @@ export default class Estudiante extends Component {
               </ul>
             </div>
           )}
+          <button onClick={agregarCurso}>Agregar</button>
         </td>
       </tr>
     );

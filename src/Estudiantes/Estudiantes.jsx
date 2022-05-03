@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Estudiante from "./Estudiante";
 import CrearEstudiante from "./CrearEstudiante";
+import InscribirEstudiante from "./InscribirEstudiante";
 
 const listaEstudiantes = [
   {
@@ -58,8 +59,9 @@ export default class Estudiantes extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      estudiantes: null,
+      estudiantes: [],
       creacion: false,
+      agregar: null,
     };
   }
 
@@ -67,16 +69,21 @@ export default class Estudiantes extends Component {
     this.consultarEstudiantes();
   }
 
-  renderEstudiantes() {
-    const { estudiantes } = this.state;
-    return estudiantes.map((estudiante, index) => {
-      return <Estudiante estudiante={estudiante} key={index} index={index} />;
-    });
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.estudiantes !== this.state.estudiantes) {
+      this.consultarEstudiantes();
+    }
   }
 
   handleClick = () => {
     this.setState({
-      creacion: true,
+      creacion: !this.state.creacion,
+    });
+  };
+
+  agregarCurso = (estudiante) => {
+    this.setState({
+      agregar: estudiante,
     });
   };
 
@@ -90,9 +97,30 @@ export default class Estudiantes extends Component {
       });
   };
 
-  render() {
-    const { estudiantes } = this.state;
+  inscribir = (estudiante, cursos) => {
+    fetch("http://localhost:1234/inscribir", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        apellido: estudiante.apellido,
+        idCursos: cursos,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.result === "success") {
+          this.setState({
+            agregar: null,
+            estudiantes: [],
+          });
+        }
+      });
+  };
 
+  render() {
+    const { estudiantes, agregar, creacion } = this.state;
     return (
       <div>
         <h3>Estudiantes</h3>
@@ -107,11 +135,35 @@ export default class Estudiantes extends Component {
               <th>Cursos</th>
             </tr>
           </thead>
-          <tbody>{estudiantes ? this.renderEstudiantes() : null}</tbody>
+          <tbody>
+            {estudiantes
+              ? estudiantes.map((estudiante, index) => {
+                  return (
+                    <Estudiante
+                      estudiante={estudiante}
+                      key={index}
+                      index={index}
+                      agregarCurso={() => {
+                        this.agregarCurso(estudiante);
+                      }}
+                    />
+                  );
+                })
+              : null}
+          </tbody>
         </table>
         <button onClick={this.handleClick}>Crear Estudiante</button>
-        {this.state.creacion ? (
+        {creacion ? (
           <CrearEstudiante consultarEstudiantes={this.consultarEstudiantes} />
+        ) : null}
+        {agregar ? (
+          <InscribirEstudiante
+            estudiante={agregar}
+            cancelar={() => {
+              this.agregarCurso(null);
+            }}
+            inscribir={this.inscribir}
+          />
         ) : null}
       </div>
     );

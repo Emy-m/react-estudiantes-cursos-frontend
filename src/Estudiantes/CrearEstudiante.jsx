@@ -39,7 +39,7 @@ export default class CrearEstudiante extends Component {
         apellido: this.state.form.apellido,
         direccion: this.state.form.direccion,
         telefonos: [this.state.form.telefono],
-        curso: this.state.form.curso,
+        cursos: [this.state.form.curso],
       }),
     })
       .then((response) => response.json())
